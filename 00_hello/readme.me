@@ -1,0 +1,68 @@
+# FastAPI Quick Start Guide
+
+This guide helps you get started with FastAPI, including installation, running the server, and testing API endpoints.
+
+---
+
+## 🚀 Installation
+
+### 1. Install FastAPI
+
+Use pip to install FastAPI:
+
+```bash
+pip install fastapi
+```
+
+### 2. Install Uvicorn
+
+Uvicorn is an ASGI server used to serve your FastAPI application:
+
+```bash
+pip install uvicorn
+```
+
+---
+
+## 🖥️ Running the Server
+
+To start the FastAPI server with live-reloading (automatically restarts the server on code changes), run:
+
+```bash
+uvicorn filename:app --reload
+```
+
+- Replace `filename` with your Python file name (without `.py` extension).
+- `app` refers to the FastAPI instance in your file.
+
+Example:
+
+```bash
+uvicorn main:app --reload
+```
+
+---
+
+## 🧪 Testing API Endpoints
+
+To test your API directly from the terminal, you can use **HTTPie**, a user-friendly HTTP client.
+
+### 1. Install HTTPie
+
+```bash
+pip install httpie
+```
+
+### 2. Test your API
+
+Once the server is running, you can make requests using:
+
+```bash
+http http://127.0.0.1:8000/your-endpoint
+```
+
+Replace `/your-endpoint` with the actual endpoint you want to test.
+
+---
+
+
