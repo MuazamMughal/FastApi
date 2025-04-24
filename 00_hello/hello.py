@@ -3,7 +3,7 @@ app : FastAPI = FastAPI()
 
 @app.get("/")
 def read_root() -> dict[str, str]:
-    return {"message": "Hello World"}
+    return {"message": "so this is after i run server as auto reload"}
 
 
 
