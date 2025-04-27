@@ -5,3 +5,4 @@ app :FastAPI = FastAPI()
 
 def urlpath(name: str):
     return {"message": f"Hello {name}!"}
+
