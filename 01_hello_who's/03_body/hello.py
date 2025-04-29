@@ -3,5 +3,5 @@ app: FastAPI = FastAPI()
 
 app.post("/hello")
 def hello(name: str = Body(embed=True)):
-    return {"message": f"Hello {name}"}
+    return f"Hello {name}"
 
