@@ -76,7 +76,7 @@ def create_access_token(data:dict , expires_date :timedelta | None = None):
 
 async def get_current_user(token:str = Depends(oauth_2_schema)):
     creadential_exception = HTTPException( status_code = status.HTTP_401_UNAUTHORIZED,
-                                          detail= "could not validate creadentials" , headers= {"WWW-Authenticte" : "Bearer" }):
+                                          detail= "could not validate creadentials" , headers= {"WWW-Authenticte" : "Bearer" })
     try:
         payload = jwt.decode(token , SECRET_KEY , algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -116,3 +116,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+@app.get("/users/me/items/")
+async def read_own_items(current_user: User = Depends(get_current_active_user)):
+    return [{"item_id": "Foo", "owner": current_user.username}] 
