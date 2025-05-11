@@ -2,7 +2,8 @@ from fastapi import FastAPI , Depends , HTTPException , status
 from fastapi.security import OAuth2PasswordBearer , OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from datetime import datetime , timedelta
-
+from jose import JWTError , jwt
+from passlib.context import CryptContext
 
 #first i have to make fake database
 db = {
@@ -15,7 +16,27 @@ db = {
     }
 }
 
+SECRET_KEY =""
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+class User(BaseModel):
+    username: str
+    full_name: str | None = None
+    email: str | None = None
+    disabled: bool | None = None
+
+class UserInDB(User):
+    hashed_password: str
 
 
+#
 
 app :FastAPI = FastAPI()
