@@ -43,3 +43,8 @@ pwd_cotnext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth_2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 app :FastAPI = FastAPI()
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_cotnext.verify(plain_password, hashed_password)
+
+
