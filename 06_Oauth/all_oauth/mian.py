@@ -37,6 +37,9 @@ class UserInDB(User):
     hashed_password: str
 
 
-#
+#writeing functins to encrypt
+
+pwd_cotnext = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth_2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 app :FastAPI = FastAPI()
