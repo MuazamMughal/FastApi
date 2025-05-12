@@ -50,4 +50,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     return pwd_cotnext.hash(password)
 
+def get_user(db, username: str) -> UserInDB | None:
+    if username in db:
+        user_dict = db[username]
+        return UserInDB(**user_dict)
+
 
