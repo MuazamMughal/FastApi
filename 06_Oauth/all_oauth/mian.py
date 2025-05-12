@@ -86,4 +86,7 @@ async def get_current_user(token:str = Depends(oauth_2_schema)):
     except JWTError:
         raise creadential_exception
     
-    return token_data
+    user = get_user(db , username=token_data.username)
+    if user is None:
+        raise creadential_exception
+
