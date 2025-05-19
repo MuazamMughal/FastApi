@@ -73,3 +73,20 @@ async def auth(request: Request):
         # # Note: Don't set sensitive data in non-httponly cookies if it's not necessary
         # response.set_cookie(key="google_user_data", value=json.dumps(idinfo)  , httponly=True)
         # return response
+
+
+        except HTTPException as http_exception:
+        # Log the exception for debugging
+        print(f"HTTPException occurred: {http_exception.detail}")
+
+        # Append a failure reason to the redirect URL
+        failure_url = f"{FRONTEND_CLIENT_FAILURE_URI}?google_login_failed={http_exception.detail}"
+        return RedirectResponse(url=failure_url)
+
+    except Exception as exception:
+        # Log the general exception for debugging
+        print(f"Exception occurred: {exception}")
+
+        # Append a generic failure message to the redirect URL
+        failure_url = f"{FRONTEND_CLIENT_FAILURE_URI}?google_login_failed=error"
+        return RedirectResponse(url=failure_url)
