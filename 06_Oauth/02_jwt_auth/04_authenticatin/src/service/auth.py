@@ -130,3 +130,37 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     if user is None:
         raise credentials_exception
     return user
+
+
+
+
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+    
+async def service_signup_users(user_data: RegisterUser, db: Session):
+    """
+    Service function to sign up users.
+
+    Args:
+        user_data (RegisterUser): The user data to be registered.
+        db (Session): The database session.
+
+    Returns:
+        The result of the user registration.
+
+    Raises:
+        Exception: If there is an invalid user exception or any other unforeseen exception.
+    """
+    try:
+        return await db_signup_users(user_data, db)
+    except InvalidUserException as e:
+        # Re-raise the exception to be handled in the web layer
+        raise e
+    except Exception as e:
+        # Re-raise general exceptions to be handled in the web layer
+        raise e
