@@ -26,3 +26,47 @@ def authenticate_user(db, username: str, password: str):
     if not verify_password(password, user.hashed_password):
         return False
     return user
+
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+
+    if not isinstance(SECRET_KEY, str):
+        raise ValueError("SECRET_KEY must be a string")
+
+    if not isinstance(ALGORITHM, str):
+            raise ValueError("ALGORITHM must be a string")
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def create_refresh_token(data: dict, expires_delta: Union[timedelta, None] = None):
+    to_encode = data.copy()
+
+    if not isinstance(SECRET_KEY, str):
+        raise ValueError("SECRET_KEY must be a string")
+
+    if not isinstance(ALGORITHM, str):
+            raise ValueError("ALGORITHM must be a string")
+    
+    # Convert UUID to string if it's present in the data
+    if 'id' in to_encode and isinstance(to_encode['id'], UUID):
+        to_encode['id'] = str(to_encode['id'])
+
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(days=7)  # Set the expiration time for refresh tokens to 7 days
+
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    return encoded_jwt
+
