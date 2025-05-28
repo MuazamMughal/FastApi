@@ -1,0 +1,28 @@
+from fastapi import Depends, HTTPException, status, Form
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+
+from jose import JWTError, jwt
+from datetime import datetime, timedelta, timezone
+from typing import Annotated, Union, Any, Optional
+from uuid import UUID
+import secrets
+import string
+
+from ..models.auth import  TokenData, User, RegisterUser, UserOutput
+from ..utils.db_dep import get_db
+from ..utils.helpers import InvalidUserException, verify_password, ALGORITHM, SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_MINUTES
+from ..data.auth import db_signup_users, get_user, get_user_by_id, get_user_by_email
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+def authenticate_user(db, username: str, password: str):
+    try:
+        user = get_user(db, username)
+    except InvalidUserException:
+        return False
+
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
