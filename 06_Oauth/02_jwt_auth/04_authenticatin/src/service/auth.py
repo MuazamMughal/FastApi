@@ -70,3 +70,63 @@ def create_refresh_token(data: dict, expires_delta: Union[timedelta, None] = Non
 
     return encoded_jwt
 
+
+async def validate_refresh_token(db: Session, refresh_token: str):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid Refresh Token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        if not isinstance(SECRET_KEY, str):
+            raise ValueError("SECRET_KEY must be a string")
+
+        if not isinstance(ALGORITHM, str):
+            raise ValueError("ALGORITHM must be a string")
+
+        payload: dict[str, Any] = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id_str: Union[str, None] = (payload.get("id"))
+
+        # If username is None, the token is invalid
+        if user_id_str is None:
+            raise credentials_exception
+        user_id: UUID = UUID(user_id_str)
+                
+        token_data = TokenData(id=user_id)
+        if token_data.id is None:
+            raise credentials_exception
+        user = get_user_by_id(db, user_id=token_data.id)
+        if user is None:
+            raise credentials_exception
+        return user
+
+    except JWTError:
+        raise credentials_exception
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        if not isinstance(SECRET_KEY, str):
+            raise ValueError("SECRET_KEY must be a string")
+
+        if not isinstance(ALGORITHM, str):
+            raise ValueError("ALGORITHM must be a string")
+        
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str | None = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    if token_data.username is None:
+        raise credentials_exception
+    user = get_user(db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
