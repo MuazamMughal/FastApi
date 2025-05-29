@@ -203,3 +203,48 @@ async def tokens_service(grant_type: str = Form(...), refresh_token: Optional[st
 
 
 # function google_user_service
+
+
+async def google_user_service(user_email: str, user_name: str ,db: Session):
+    """
+    Service function to sign up/login users.
+
+    Args:
+        user_email: The user_email.
+        db (Session): The database session.
+
+    Returns:
+        The user data.
+    """
+    try:
+        # check if user exists in db
+        user = await get_user_by_email(db, user_email)
+
+        if user is None:
+            # if user does not exist, create a new user
+            # Create a random password
+            password_length = 12  # You can choose the length of the password
+            characters = string.ascii_letters + string.digits + string.punctuation
+            random_password = ''.join(secrets.choice(characters) for i in range(password_length))
+
+
+            user_data = RegisterUser(
+                username=user_name,
+                full_name=user_name,
+                email=user_email,
+                password=random_password,
+            )
+
+            new_user = await db_signup_users(user_data, db)
+            return UserOutput( username=new_user.username, email=new_user.email, full_name= new_user.full_name, id=new_user.id)
+
+
+        return UserOutput( username=user.username, email=user.email, full_name= user.full_name, id=user.id)
+
+        return UserOutput(**user)
+    except InvalidUserException as e:
+        # Re-raise the exception to be handled in the web layer
+        raise e
+    except Exception as e:
+        # Re-raise general exceptions to be handled in the web layer
+        raise e
