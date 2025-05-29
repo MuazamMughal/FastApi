@@ -164,3 +164,42 @@ async def service_signup_users(user_data: RegisterUser, db: Session):
     except Exception as e:
         # Re-raise general exceptions to be handled in the web layer
         raise e
+
+async def tokens_service(grant_type: str = Form(...), refresh_token: Optional[str] = Form(None), db: Session = Depends(get_db)):
+    """
+    Generates access and refresh tokens based on the provided grant type.
+    """
+    if grant_type == "refresh_token":
+        if not refresh_token:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Refresh token is required for grant_type 'refresh_token'")
+        
+        user = await validate_refresh_token(db, refresh_token)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+    
+    elif grant_type == "authorization_code":
+        # Handle the authorization code grant type
+        # This would involve validating the authorization code and possibly exchanging it for tokens
+        # Example: user = await validate_authorization_code(db, authorization_code)
+        pass  # Replace with actual logic
+    
+    else:
+        # If an unsupported grant type is provided, raise an error
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported grant type")
+
+    # Common token generation code for authenticated users
+    access_token_expires = timedelta(minutes=float(ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
+
+    refresh_token_expires = timedelta(minutes=float(REFRESH_TOKEN_EXPIRE_MINUTES))
+    rotated_refresh_token = create_refresh_token(data={"id": user.id}, expires_delta=refresh_token_expires)
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "expires_in": int(access_token_expires.total_seconds()),
+        "refresh_token": rotated_refresh_token
+    }
+
+
+# function google_user_service
