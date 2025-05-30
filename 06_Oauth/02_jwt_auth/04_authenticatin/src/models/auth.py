@@ -15,3 +15,23 @@ class TokenData(BaseModel):
 class UserRole(str, Enum):
     ADMIN = "admin"
     USER = "user"
+
+
+class User(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str | None = None
+    disabled: bool | None = False
+    email_verified: bool | None = False
+    role: UserRole | None = UserRole.USER
+
+
+class UserInDB(User):
+    id: UUID
+    hashed_password: str
+
+class RegisterUser(User):
+    password: str
+
+class UserOutput(User):
+    id: UUID
