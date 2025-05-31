@@ -55,3 +55,15 @@ def get_user_by_id(db, user_id: Union[UUID, None] = None):
     if not user:
         raise InvalidUserException(status_code=404, detail="User not found")
     return user
+
+
+async def get_user_by_email(db, user_email: Union[str, None] = None):
+
+    if user_email is None:
+        raise InvalidUserException(status_code=404, detail="user_email not provided")
+
+    user = db.query(USER).filter(USER.email == user_email).first()
+    
+    if not user:
+        return None
+    return user
