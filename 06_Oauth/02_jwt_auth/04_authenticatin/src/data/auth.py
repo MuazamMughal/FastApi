@@ -32,3 +32,26 @@ async def db_signup_users(
 
     # Return the new user data
     return new_user
+
+
+def get_user(db, username: Union[str, None] = None):
+
+    if username is None:
+        raise InvalidUserException(status_code=404, detail="Username not provided")
+
+    user = db.query(USER).filter(USER.username == username).first()
+    
+    if not user:
+        raise InvalidUserException(status_code=404, detail="User not found")
+    return user
+
+def get_user_by_id(db, user_id: Union[UUID, None] = None):
+
+    if user_id is None:
+        raise InvalidUserException(status_code=404, detail="user_id not provided")
+
+    user = db.query(USER).filter(USER.id == user_id).first()
+    
+    if not user:
+        raise InvalidUserException(status_code=404, detail="User not found")
+    return user
